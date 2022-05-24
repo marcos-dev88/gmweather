@@ -11,9 +11,8 @@ import (
 )
 
 var (
-	chAaaa = make(chan string)
-	chErr  = make(chan error)
-	chOut  = make(chan *application.WeatherData)
+	searchRegion = make(chan string)
+	chErr        = make(chan error)
 )
 
 func main() {
@@ -29,17 +28,18 @@ func main() {
 		hello,
 		inputText,
 		widget.NewButton("Search", func() {
-			chAaaa <- inputText.Text
+			searchRegion <- inputText.Text
 		}),
 	))
 
-	go getWeather(chAaaa, chOut)
-
+	go getWeather(searchRegion, hello)
 	w.ShowAndRun()
+
 }
 
-func getWeather(input chan string, out chan *application.WeatherData) {
+func getWeather(input chan string, at *widget.Label) {
 	var updatedData string
+	var weatherData *application.WeatherData
 
 	for {
 		select {
@@ -47,12 +47,18 @@ func getWeather(input chan string, out chan *application.WeatherData) {
 			adapat := application.AdapterConn(updatedData)
 			s := application.NewService(adapat)
 			appS := application.NewApp(adapat, s)
-			err := appS.UpdateData(<-out)
+
+			err := appS.UpdateData(weatherData)
+
 			if err != nil {
 				chErr <- err
 			}
 
-			log.Printf("\n\ndataloop -> %+v\n\n", out)
+			if weatherData != nil {
+				at.SetText(weatherData.TempC)
+			}
+
+			log.Printf("\n\ndataloop -> %+v\n\n", weatherData)
 
 		case data := <-input:
 			updatedData = data
@@ -66,7 +72,11 @@ func getWeather(input chan string, out chan *application.WeatherData) {
 				chErr <- err
 			}
 
-			out <- &d
+			weatherData = &d
+
+			at.SetText(weatherData.TempC)
+
+			log.Printf("data -> %v", weatherData)
 
 		case errCh := <-chErr:
 			log.Fatalf("error: %v", errCh)
