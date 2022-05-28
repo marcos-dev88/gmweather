@@ -1,29 +1,67 @@
 package application
 
 import (
+	"log"
+	"time"
+
 	"github.com/marcos-dev88/gmweather/gmweather/adapter"
 	"github.com/marcos-dev88/gmweather/gmweather/service"
 )
 
-var (
-	AdapterConn = adapter.NewConnection
-	NewService  = service.NewWeatherService
-)
-
-type WeatherData service.CheckWeatherOut
-
 type Application interface {
+	RunApp(in Input)
 	GetWeather() (WeatherData, error)
 	UpdateData(*WeatherData) error
 }
 
-type app struct {
-	service service.WeatherData
-	adapter adapter.APIWeather
+func NewApp() Application {
+	return &app{}
 }
 
-func NewApp(adapter adapter.APIWeather, service service.WeatherData) Application {
-	return &app{adapter: adapter, service: service}
+func (a *app) RunApp(in Input) {
+	var updatedSearch string
+	var weatherData *WeatherData
+
+	a.adapter = AdapterConn(updatedSearch)
+	a.service = NewService(a.adapter)
+
+	for {
+		select {
+		case <-time.After(10 * time.Second):
+			err := a.UpdateData(weatherData)
+
+			if err != nil {
+				in.InputError <- err
+			}
+
+			if weatherData != nil {
+				in.Label.SetText(weatherData.CurrentWeather.TempC)
+			}
+
+			log.Printf("\n\ndataloop -> %+v\n\n", weatherData)
+
+		case data := <-in.InputSearch:
+			updatedSearch = data
+			a.adapter = AdapterConn(data)
+			a.service = NewService(a.adapter)
+
+			d, err := a.GetWeather()
+
+			if err != nil {
+				in.InputError <- err
+			}
+
+			weatherData = &d
+
+			in.Label.SetText(weatherData.CurrentWeather.TempC)
+
+			log.Printf("data -> %v", weatherData)
+
+		case errCh := <-in.InputError:
+			log.Fatalf("error: %v", errCh)
+		}
+	}
+
 }
 
 func (a *app) GetWeather() (WeatherData, error) {
