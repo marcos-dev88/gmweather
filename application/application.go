@@ -10,8 +10,6 @@ import (
 
 type Application interface {
 	RunApp(in Input)
-	GetWeather() (WeatherData, error)
-	UpdateData(*WeatherData) error
 }
 
 func NewApp() Application {
