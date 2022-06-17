@@ -1,6 +1,9 @@
 package application
 
 import (
+	"time"
+
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/widget"
 	"github.com/marcos-dev88/gmweather/gmweather/adapter"
 	"github.com/marcos-dev88/gmweather/gmweather/service"
@@ -11,6 +14,8 @@ var (
 	NewService  = service.NewWeatherService
 )
 
+const MinutesReloadWeatherData time.Duration = 30
+
 type WeatherData service.CheckWeatherOut
 
 type app struct {
@@ -19,7 +24,9 @@ type app struct {
 }
 
 type Input struct {
-	InputSearch chan string
-	InputError  chan error
-	Label       *widget.Label
+	InputSearch   chan string
+	InputError    chan error
+	LocationLabel *widget.Label
+	TempLabel     *widget.Label
+	WeatherImg    *canvas.Image
 }

@@ -12,23 +12,23 @@ var (
 	chErr        = make(chan error)
 )
 
-type Input struct {
-	InputSearch chan string
-	InputError  chan error
-	Label       *widget.Label
-}
+type Input application.Input
 
 func main() {
 	a := app.New()
 
-	w := a.NewWindow("Hello")
+	w := a.NewWindow("weather")
 
-	hello := widget.NewLabel("Hello fyne!")
+	hello := widget.NewLabel("Weather situation in: ")
+	location := widget.NewLabel("--")
+	tempWeather := widget.NewLabel("--")
 	inputText := widget.NewEntry()
 	inputText.SetPlaceHolder("type something")
 
 	w.SetContent(container.NewVBox(
 		hello,
+		location,
+		tempWeather,
 		inputText,
 		widget.NewButton("Search", func() {
 			searchRegion <- inputText.Text
@@ -36,9 +36,11 @@ func main() {
 	))
 
 	in := Input{
-		InputSearch: searchRegion,
-		InputError:  chErr,
-		Label:       hello,
+		InputSearch:   searchRegion,
+		InputError:    chErr,
+		TempLabel:     tempWeather,
+		LocationLabel: location,
+		WeatherImg:    nil,
 	}
 
 	app := application.NewApp()
