@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"time"
 
 	redis "github.com/go-redis/redis/v8"
@@ -17,6 +18,10 @@ func NewClient(addr, pass string, db int) *redis.Client {
 		Password: pass,
 		DB:       db,
 	})
+}
+
+func New(client *redis.Client, ctx context.Context) Cache {
+	return &cache{Client: client, Ctx: ctx}
 }
 
 func (c cache) Set(key string, data interface{}, ttl time.Duration) error {

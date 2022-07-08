@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
+
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/marcos-dev88/gmweather/application"
+	"github.com/marcos-dev88/gmweather/redis"
 )
 
 var (
@@ -43,7 +46,10 @@ func main() {
 		WeatherImg:    nil,
 	}
 
-	app := application.NewApp()
+	ctx := context.Background()
+	c := redis.NewClient("localhost:6079", "12345", 0)
+
+	app := application.NewApp(redis.New(c, ctx))
 
 	go app.RunApp(application.Input(in))
 
