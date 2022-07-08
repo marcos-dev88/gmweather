@@ -7,14 +7,15 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"github.com/marcos-dev88/gmweather/gmweather/adapter"
 	"github.com/marcos-dev88/gmweather/gmweather/service"
+	redis "github.com/marcos-dev88/gmweather/redis/cache"
 )
 
 type Application interface {
 	RunApp(in Input)
 }
 
-func NewApp() Application {
-	return &app{}
+func NewApp(c redis.Cache) Application {
+	return &app{cache: c}
 }
 
 func (a *app) RunApp(in Input) {
@@ -112,4 +113,12 @@ func (a *app) GetPrevision() ([]service.WeatherPrevision, error) {
 
 func (a *app) Weather() (adapter.WeatherOut, error) {
 	return a.adapter.Weather()
+}
+
+func (a *app) Set(key string, data interface{}, ttl time.Duration) error {
+	return a.cache.Set(key, data, ttl)
+}
+
+func (a *app) Get(key string) ([]byte, error) {
+	return a.cache.Get(key)
 }

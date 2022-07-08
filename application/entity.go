@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/marcos-dev88/gmweather/gmweather/adapter"
 	"github.com/marcos-dev88/gmweather/gmweather/service"
+	redis "github.com/marcos-dev88/gmweather/redis/cache"
 )
 
 var (
@@ -21,6 +22,7 @@ type WeatherData service.CheckWeatherOut
 type app struct {
 	service service.WeatherData
 	adapter adapter.APIWeather
+	cache   redis.Cache
 }
 
 type Input struct {

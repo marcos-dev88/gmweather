@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  weather_cache:
+    build:
+      dockerfile: ./docker/Dockerfile_redis
+      context: .
+    container_name: weather_cache
