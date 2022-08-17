@@ -29,6 +29,7 @@ type mockService struct {
 func (m mockService) GetCurrent() (service.CurrentWeather, error) {
 	return m.outC, m.outErrC
 }
+
 func (m mockService) GetPrevision() ([]service.WeatherPrevision, error) {
 	return m.outP, m.outErrP
 }

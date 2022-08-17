@@ -4,28 +4,31 @@ import (
 	"log"
 	"time"
 
+	"fyne.io/fyne/v2/canvas"
 	"github.com/marcos-dev88/gmweather/gmweather/adapter"
 	"github.com/marcos-dev88/gmweather/gmweather/service"
+	redis "github.com/marcos-dev88/gmweather/redis/cache"
 )
 
 type Application interface {
 	RunApp(in Input)
 }
 
-func NewApp() Application {
-	return &app{}
+func NewApp(c redis.Cache) Application {
+	return &app{cache: c}
 }
 
 func (a *app) RunApp(in Input) {
 	var updatedSearch string
 	var weatherData *WeatherData
 
+	in.WeatherImg = canvas.NewImageFromFile("") //TODO: create an away to populate this
 	a.adapter = AdapterConn(updatedSearch)
 	a.service = NewService(a.adapter)
 
 	for {
 		select {
-		case <-time.After(10 * time.Second):
+		case <-time.After(MinutesReloadWeatherData * time.Minute):
 			err := a.UpdateData(weatherData)
 
 			if err != nil {
@@ -33,7 +36,7 @@ func (a *app) RunApp(in Input) {
 			}
 
 			if weatherData != nil {
-				in.Label.SetText(weatherData.CurrentWeather.TempC)
+				in.TempLabel.SetText(weatherData.CurrentWeather.TempC)
 			}
 
 			log.Printf("\n\ndataloop -> %+v\n\n", weatherData)
@@ -51,8 +54,8 @@ func (a *app) RunApp(in Input) {
 
 			weatherData = &d
 
-			in.Label.SetText(weatherData.CurrentWeather.TempC)
-
+			in.TempLabel.SetText(weatherData.CurrentWeather.TempC)
+			in.LocationLabel.SetText(data)
 			log.Printf("data -> %v", weatherData)
 
 		case errCh := <-in.InputError:
@@ -110,4 +113,12 @@ func (a *app) GetPrevision() ([]service.WeatherPrevision, error) {
 
 func (a *app) Weather() (adapter.WeatherOut, error) {
 	return a.adapter.Weather()
+}
+
+func (a *app) Set(key string, data interface{}, ttl time.Duration) error {
+	return a.cache.Set(key, data, ttl)
+}
+
+func (a *app) Get(key string) ([]byte, error) {
+	return a.cache.Get(key)
 }

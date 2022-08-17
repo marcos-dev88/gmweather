@@ -1,2 +1,5 @@
 #ignoring coverage
 ./application/coverage.out
+
+#ignoring tags
+tags
