@@ -1,7 +1,24 @@
 version: '3.8'
 services:
   weather_cache:
-    build:
-      dockerfile: ./docker/Dockerfile_redis
-      context: .
+    image: "redis:alpine"
     container_name: weather_cache
+    env_file: "./.env"
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASS} --port ${REDIS_PORT}
+    ports:
+    - ${REDIS_PORT}:6379
+    expose:
+    - ${REDIS_PORT}
+    volumes:
+      - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      net:
+        ipv4_address: 172.34.0.5
+
+
+networks:
+  net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.34.0.0/24
