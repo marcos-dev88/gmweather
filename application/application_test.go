@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/marcos-dev88/gmweather/gmweather/adapter"
-	"github.com/marcos-dev88/gmweather/gmweather/service"
+	"github.com/marcos-dev88/gmweather/internal/adapter"
+	"github.com/marcos-dev88/gmweather/internal/service"
 )
 
 func TestNewApp(t *testing.T) {

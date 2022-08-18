@@ -3,8 +3,8 @@ package application
 import (
 	"errors"
 
-	"github.com/marcos-dev88/gmweather/gmweather/adapter"
-	"github.com/marcos-dev88/gmweather/gmweather/service"
+	"github.com/marcos-dev88/gmweather/internal/adapter"
+	"github.com/marcos-dev88/gmweather/internal/service"
 )
 
 /*====== MOCK ADAPTER ======*/
