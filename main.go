@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/marcos-dev88/gmweather/application"
-	redis "github.com/marcos-dev88/gmweather/redis/cache"
+	redis "github.com/marcos-dev88/gmweather/cache"
 )
 
 var (

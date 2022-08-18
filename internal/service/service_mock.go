@@ -1,6 +1,6 @@
 package service
 
-import "github.com/marcos-dev88/gmweather/gmweather/adapter"
+import "github.com/marcos-dev88/gmweather/internal/adapter"
 
 type mockAdapter struct {
 	out     adapter.WeatherOut

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/marcos-dev88/gmweather/gmweather/adapter"
+	"github.com/marcos-dev88/gmweather/internal/adapter"
 )
 
 // go test -v -failfast -run ^TestNewWeatherService

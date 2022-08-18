@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2/canvas"
-	"github.com/marcos-dev88/gmweather/gmweather/adapter"
-	"github.com/marcos-dev88/gmweather/gmweather/service"
-	redis "github.com/marcos-dev88/gmweather/redis/cache"
+	redis "github.com/marcos-dev88/gmweather/cache"
+	"github.com/marcos-dev88/gmweather/internal/adapter"
+	"github.com/marcos-dev88/gmweather/internal/service"
 )
 
 type Application interface {
