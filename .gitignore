@@ -1,5 +1,9 @@
 #ignoring coverage
 ./application/coverage.out
+./application/cover
 
 #ignoring tags
 tags
+
+#ignoring bin
+./bin
