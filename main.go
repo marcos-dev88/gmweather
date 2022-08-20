@@ -2,13 +2,22 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/marcos-dev88/gmweather/application"
-	redis "github.com/marcos-dev88/gmweather/cache"
+	redis "github.com/marcos-dev88/gmweather/core/cache"
+	"github.com/marcos-dev88/gmweather/core/env"
 )
+
+func init() {
+	err := env.DefineEnvs(".env")
+	if err != nil {
+		log.Fatalf("error to define envs: %v", err)
+	}
+}
 
 var (
 	searchRegion = make(chan string)
@@ -47,7 +56,8 @@ func main() {
 	}
 
 	ctx := context.Background()
-	c := redis.NewClient("localhost:6079", "12345", 0)
+	redisURI := "localhost" + env.Get("REDIS_PORT").String()
+	c := redis.NewClient(redisURI, env.Get("REDIS_PASS").String(), 0)
 
 	app := application.NewApp(redis.New(c, ctx))
 

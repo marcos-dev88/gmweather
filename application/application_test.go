@@ -1,7 +1,6 @@
 package application
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -9,21 +8,21 @@ import (
 	"github.com/marcos-dev88/gmweather/internal/service"
 )
 
-func TestNewApp(t *testing.T) {
-	tests := []struct {
-		name string
-		want Application
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewApp(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewApp() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// func TestNewApp(t *testing.T) {
+// 	tests := []struct {
+// 		name string
+// 		want Application
+// 	}{
+// 		// TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			if got := NewApp(); !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("NewApp() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
 
 func Test_app_RunApp(t *testing.T) {
 	type fields struct {

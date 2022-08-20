@@ -1,5 +1,20 @@
 version: '3.8'
 services:
+  weather_app:
+    env_file: "./.env"
+    build:
+      dockerfile: Dockerfile
+      args:
+        API_PORT: ${API_PORT}
+      context: .
+    container_name: weather_app
+    ports:
+      - ${API_PORT}:${API_PORT}
+    networks:
+      net:
+        ipv4_address: 207.8.4.2
+
+
   weather_cache:
     image: "redis:alpine"
     container_name: weather_cache
@@ -13,12 +28,11 @@ services:
       - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       net:
-        ipv4_address: 172.34.0.5
-
+        ipv4_address: 207.8.4.5
 
 networks:
   net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.34.0.0/24
+    external:
+      name: gmweather_net_dev
+
+

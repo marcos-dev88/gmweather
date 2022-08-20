@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2/canvas"
-	redis "github.com/marcos-dev88/gmweather/cache"
+	redis "github.com/marcos-dev88/gmweather/core/cache"
 	"github.com/marcos-dev88/gmweather/internal/adapter"
 	"github.com/marcos-dev88/gmweather/internal/service"
 )
