@@ -1,6 +1,7 @@
 package application
 
 import (
+	"encoding/json"
 	"log"
 	"time"
 
@@ -26,6 +27,7 @@ func (a *app) RunApp(in Input) {
 	a.adapter = AdapterConn(updatedSearch)
 	a.service = NewService(a.adapter)
 
+	// There's something called: 'WeatherCode' what we can use
 	for {
 		select {
 		case <-time.After(MinutesReloadWeatherData * time.Minute):
@@ -43,20 +45,49 @@ func (a *app) RunApp(in Input) {
 
 		case data := <-in.InputSearch:
 			updatedSearch = data
-			a.adapter = AdapterConn(data)
-			a.service = NewService(a.adapter)
+			hasCache := false
+			var bData []byte
+			if weatherData != nil {
+				bData, err := a.Get(weatherData.WeatherCode)
+				hasCache = true
+				if err != nil {
+					if err.Error() == "no_cache_data" {
+						hasCache = false
+					} else {
+						in.InputError <- err
+					}
+				}
+				log.Printf("cachedData -> %s", string(bData))
+			}
+			if hasCache {
+				if err := json.Unmarshal(bData, &weatherData); err != nil {
+					in.InputError <- err
+				}
+				log.Printf("HELLO FROM CACHE -> %v", weatherData)
+			} else {
+				a.adapter = AdapterConn(data)
+				a.service = NewService(a.adapter)
 
-			d, err := a.GetWeather()
+				d, err := a.GetWeather()
 
-			if err != nil {
-				in.InputError <- err
+				if err != nil {
+					in.InputError <- err
+				}
+
+				weatherData = &d
+				log.Printf("data -> %+v", weatherData)
 			}
 
-			weatherData = &d
+			if !hasCache && weatherData != nil && len(weatherData.WeatherCode) > 0 {
+				// Defining redis cache
+				if err := a.Set(weatherData.WeatherCode, weatherData, MinutesReloadWeatherData-5*time.Minute); err != nil {
+					in.InputError <- err
+				}
+			}
 
 			in.TempLabel.SetText(weatherData.CurrentWeather.TempC)
 			in.LocationLabel.SetText(data)
-			log.Printf("data -> %v", weatherData)
+			log.Printf("data -> %+v", weatherData)
 
 		case errCh := <-in.InputError:
 			log.Fatalf("error: %v", errCh)

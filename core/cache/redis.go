@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	redis "github.com/go-redis/redis/v8"
@@ -33,5 +34,11 @@ func (c cache) Set(key string, data interface{}, ttl time.Duration) error {
 func (c cache) Get(key string) ([]byte, error) {
 	client := c.Client
 	defer client.Close()
-	return client.Get(c.Ctx, key).Bytes()
+	b, err := client.Get(c.Ctx, key).Bytes()
+
+	if err == redis.Nil {
+		return nil, errors.New("no_cache_data")
+	}
+
+	return b, nil
 }
