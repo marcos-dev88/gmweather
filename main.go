@@ -56,7 +56,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	redisURI := "localhost" + env.Get("REDIS_PORT").String()
+	redisURI := "localhost" + ":" + env.Get("REDIS_PORT").String()
 	c := redis.NewClient(redisURI, env.Get("REDIS_PASS").String(), 0)
 
 	app := application.NewApp(redis.New(c, ctx))

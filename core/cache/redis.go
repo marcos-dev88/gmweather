@@ -11,29 +11,34 @@ import (
 type Cache interface {
 	Set(key string, data interface{}, ttl time.Duration) error
 	Get(key string) ([]byte, error)
+	Close() error
 }
 
-func NewClient(addr, pass string, db int) *redis.Client {
-	return redis.NewClient(&redis.Options{
+func NewClient(addr, pass string, db int) *Client {
+	c := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: pass,
 		DB:       db,
 	})
+	return (*Client)(c)
 }
 
-func New(client *redis.Client, ctx context.Context) Cache {
+func New(client *Client, ctx context.Context) Cache {
 	return &cache{Client: client, Ctx: ctx}
 }
 
 func (c cache) Set(key string, data interface{}, ttl time.Duration) error {
 	client := c.Client
-	defer client.Close()
-	return client.Set(c.Ctx, key, data, ttl).Err()
+	e := client.Set(c.Ctx, key, data, ttl)
+
+	if e.Err() != nil {
+		return e.Err()
+	}
+	return nil
 }
 
 func (c cache) Get(key string) ([]byte, error) {
 	client := c.Client
-	defer client.Close()
 	b, err := client.Get(c.Ctx, key).Bytes()
 
 	if err == redis.Nil {
@@ -41,4 +46,8 @@ func (c cache) Get(key string) ([]byte, error) {
 	}
 
 	return b, nil
+}
+
+func (c cache) Close() error {
+	return c.Client.Close()
 }

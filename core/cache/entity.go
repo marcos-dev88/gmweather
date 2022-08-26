@@ -6,7 +6,9 @@ import (
 	redis "github.com/go-redis/redis/v8"
 )
 
+type Client redis.Client
+
 type cache struct {
-	Client *redis.Client
+	Client *Client
 	Ctx    context.Context
 }
