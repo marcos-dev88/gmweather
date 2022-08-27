@@ -1,24 +1,31 @@
 version: '3.8'
 services:
+  # weather_app:
+  #   env_file: "./.env"
+  #   build:
+  #     dockerfile: Dockerfile
+  #     context: .
+  #   container_name: weather_app
+
   weather_cache:
     image: "redis:alpine"
     container_name: weather_cache
     env_file: "./.env"
     command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASS} --port ${REDIS_PORT}
     ports:
-    - ${REDIS_PORT}:6379
+    - ${REDIS_PORT}:${REDIS_PORT}
     expose:
     - ${REDIS_PORT}
     volumes:
-      - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      net:
-        ipv4_address: 172.34.0.5
+    - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
 
 
-networks:
-  net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.34.0.0/24
+    #   net:
+    #     ipv4_address: 207.8.4.5
+
+# networks:
+  # net:
+    # external:
+    #   name: gmweather_net_dev
+
+

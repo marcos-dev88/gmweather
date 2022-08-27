@@ -1,11 +1,12 @@
 package application
 
 import (
+	"encoding/json"
 	"log"
 	"time"
 
 	"fyne.io/fyne/v2/canvas"
-	redis "github.com/marcos-dev88/gmweather/cache"
+	redis "github.com/marcos-dev88/gmweather/core/cache"
 	"github.com/marcos-dev88/gmweather/internal/adapter"
 	"github.com/marcos-dev88/gmweather/internal/service"
 )
@@ -43,20 +44,48 @@ func (a *app) RunApp(in Input) {
 
 		case data := <-in.InputSearch:
 			updatedSearch = data
-			a.adapter = AdapterConn(data)
-			a.service = NewService(a.adapter)
-
-			d, err := a.GetWeather()
-
+			hasCache := true
+			var bData []byte
+			defer a.Close()
+			bData, err := a.Get(data)
 			if err != nil {
-				in.InputError <- err
+				if err.Error() == "no_cache_data" {
+					hasCache = false
+				} else {
+					log.Fatalf("error: %v", err)
+				}
 			}
+			if len(bData) == 0 {
+				hasCache = false
+			}
+			if hasCache {
+				if err := json.Unmarshal(bData, &weatherData); err != nil {
+					in.InputError <- err
+				}
+			} else {
+				a.adapter = AdapterConn(data)
+				a.service = NewService(a.adapter)
 
-			weatherData = &d
+				d, err := a.GetWeather()
+
+				if err != nil {
+					in.InputError <- err
+				}
+
+				weatherData = &d
+			}
+			if !hasCache {
+				if weatherData != nil && len(updatedSearch) > 0 {
+					// Defining redis cache
+					b, _ := json.Marshal(weatherData)
+					if err := a.Set(updatedSearch, b, MinutesReloadWeatherData*time.Minute); err != nil {
+						log.Fatalf("error: %v", err)
+					}
+				}
+			}
 
 			in.TempLabel.SetText(weatherData.CurrentWeather.TempC)
 			in.LocationLabel.SetText(data)
-			log.Printf("data -> %v", weatherData)
 
 		case errCh := <-in.InputError:
 			log.Fatalf("error: %v", errCh)
@@ -121,4 +150,8 @@ func (a *app) Set(key string, data interface{}, ttl time.Duration) error {
 
 func (a *app) Get(key string) ([]byte, error) {
 	return a.cache.Get(key)
+}
+
+func (a *app) Close() error {
+	return a.cache.Close()
 }
