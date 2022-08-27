@@ -46,13 +46,13 @@ func (a *app) RunApp(in Input) {
 			updatedSearch = data
 			hasCache := true
 			var bData []byte
-			defer a.cache.Close()
+			defer a.Close()
 			bData, err := a.Get(data)
 			if err != nil {
 				if err.Error() == "no_cache_data" {
 					hasCache = false
 				} else {
-					in.InputError <- err
+					log.Fatalf("error: %v", err)
 				}
 			}
 			if len(bData) == 0 {
@@ -79,7 +79,7 @@ func (a *app) RunApp(in Input) {
 					// Defining redis cache
 					b, _ := json.Marshal(weatherData)
 					if err := a.Set(updatedSearch, b, MinutesReloadWeatherData*time.Minute); err != nil {
-						in.InputError <- err
+						log.Fatalf("error: %v", err)
 					}
 				}
 			}
@@ -150,4 +150,8 @@ func (a *app) Set(key string, data interface{}, ttl time.Duration) error {
 
 func (a *app) Get(key string) ([]byte, error) {
 	return a.cache.Get(key)
+}
+
+func (a *app) Close() error {
+	return a.cache.Close()
 }
