@@ -22,6 +22,6 @@ This is a weather app to check temperature and weather situation like raining or
 
 ## Run the project
 
-1. Run the command `make run`;
-
-2. Search for which city you want.
+1. Rename your **.env.example** to **.env**;
+2. Run the command `make run`;
+3. Search for which city you want.
