@@ -1,11 +1,23 @@
 version: '3.8'
 services:
-  # weather_app:
-  #   env_file: "./.env"
-  #   build:
-  #     dockerfile: Dockerfile
-  #     context: .
-  #   container_name: weather_app
+  weather_app:
+    env_file: "./.env"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/.Xauthority
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: weather_app
+    depends_on:
+      - weather_cache
+    ports:
+      - "8075:8075"
+    network_mode: host
+    # networks:
+    #   net:
+    #     ipv4_address: 207.8.4.3
+
 
   weather_cache:
     image: "redis:alpine"
@@ -18,14 +30,14 @@ services:
     - ${REDIS_PORT}
     volumes:
     - $PWD/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      net:
+        ipv4_address: 207.8.4.4
 
 
-    #   net:
-    #     ipv4_address: 207.8.4.5
-
-# networks:
-  # net:
-    # external:
-    #   name: gmweather_net_dev
+networks:
+  net:
+    external:
+      name: gmweather_net_dev
 
 
