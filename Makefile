@@ -1,7 +1,6 @@
 run:
-	./scripts/docker_net_conf.sh;
-	docker-compose up -d;
-	go run .
+	bash ./scripts/docker_net_conf.sh;
+	docker-compose up;
 
 
 build:
